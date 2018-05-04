@@ -1,0 +1,223 @@
+<!doctype HTML>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>Statistics</title>
+		
+		<!-- Stylesheets -->
+		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="css/app.css">
+
+		<!-- Angular JS -->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script> 
+
+		<!-- UI Router -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.min.js"></script>
+
+		<!-- Bootstrap Directives -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.1.1/ui-bootstrap-tpls.min.js"></script>
+
+		<!-- D3 Data-Driven Documents -->
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+
+		<!-- Application js -->
+		<script type="text/javascript" src="js/app.js"></script>
+
+		<script type="text/javascript" src="js/controllers.js"></script>
+
+		<script type="text/javascript" src="js/services.js"></script>
+
+		<script type="text/javascript" src="js/directives.js"></script>
+
+	</head>
+	<body ng-app="statisticApp">
+		<div class="container">
+			<ui-view></ui-view>
+		</div>
+
+		<script type="text/ng-template" id="/home.html">
+			<div class="col-md-6 col-md-offset-3">
+				<div class="page-header">
+					<h1>Statistics</h1>
+				</div>
+				
+				<div ng-repeat="data in datatable">
+					<div class="item">
+						<span style="font-size:20px; margin-left:10px;">
+							{{data.title}}
+						</span>
+						<div class="link">
+							<span style="font-size:14px; margin-left:10px;">
+								<a href="#/collections/{{data.trimTitle}}/measurements">Check your data or add a new key value pair</a>
+							</span>
+						</div>
+					</div>
+				</div>
+				<br><br>
+				
+				<form class="form-horizontal" ng-submit="createCollection()" style="margin-top:30px; font-size:16px;">
+					<div class="form-group">
+						<div class="col-xs-8">
+							<label for="txtx">Please give a title for your new data collection:</label>
+							<input type="text" id="txtx" class="form-control" placeholder="Title" ng-model="title"></input>
+						</div>
+					</div>
+					<br>
+					<div class="form-group">
+						<div class="col-xs-8">
+							<label for="first">Add first measurement:</label>
+							<div ng-repeat="key in keys track by $index">
+								<input type="text" id="TextBox0" ng-model="key.name" class="form-control" placeholder="Measurement name"></input>
+							</div>
+							<br><br>
+							<div>
+								<input type="button" id="btn0" class="btn btn-primary" value="+" ng-click="update()"></input>
+							</div>
+							<br>
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary">Continue</button>
+				</form>
+			</div>
+		</script>
+
+		<script type="text/ng-template" id="/inserts.html">
+      		<div class="col-md-6 col-md-offset-3">
+				<br>
+				<span style="margin-left:10px;">
+					<a href="#/collections" class="btn btn-primary" role="button">Back</a>
+				</span>
+				<div class="page-header">
+					<h2>
+						<p ng-show="data.value">
+							{{title}}
+						</p>
+						<span ng-hide="data.value">
+							{{title}}
+						</span>
+					</h2>
+				</div>
+				
+				<form class="form-inline" style="margin-top:40px; font-size:16px;">
+					<div class="box">
+						<p>Charts</p>
+						<div class="form-group">
+							<label for="meas">Select measurement:</label>
+							<select ng-init="dataNbr = keyTable[0]" ng-model="dataNbr" ng-options="item for item in keyTable" id="meas" class="form-control"></select>
+						</div>
+						<a href="#/collections/{{trimmedTitle}}/measurements/{{dataNbr}}" class="btn btn-primary" role="button">Show</a>
+					</div>
+				</form>
+				<br><br>
+
+				<div ng-repeat="keys in keyTable">
+					<div class="keyItem">
+						<a href="#/collections/{{trimmedTitle}}/measurements/{{keys}}/linechart">
+							<img src="images/linechart_thumb.jpg" alt="Charts" height="70" width="120">
+						</a>
+						<a href="#/collections/{{trimmedTitle}}/measurements/{{keys}}/barchart">
+							<img src="images/barchart_thumb.jpg" alt="Charts" height="70" width="120">
+						</a>
+						<a href="#/collections/{{trimmedTitle}}/measurements/{{keys}}/barchart">
+							<img src="images/barchart_thumb2.jpg" alt="Charts" height="70" width="120">
+						</a>
+						<a href="#/collections/{{trimmedTitle}}/measurements/{{keys}}/piechart">
+							<img src="images/piechart_thumb.jpg" alt="Charts" height="70" width="70">
+						</a>
+						<br><br>
+						<span style="font-size:20px; font-weight:bold;">
+							{{keys}} :
+						</span>
+						<div ng-repeat="items in viewData[$index]">
+							<div class="setti">
+								<div class="key">
+									<span style="font-size:20px;">
+										{{items.val}}
+									</span>
+								</div>
+								<div class="data">
+									<span style="font-size:15px;">
+										{{items.date}}
+									</span>
+								</div>
+							</div>
+						</div>
+						<br><br><br><br>
+					</div>
+				</div>
+
+				<form class="form-inline" ng-submit="createDataEntry()" style="margin-top:40px; font-size:16px;">
+					<p>Add a new value</p>
+					<div class="form-group">
+						<label for="meas">Select measurement:</label>
+						<select ng-init="measNbr = keyTable[0]" ng-model="measNbr" ng-options="item for item in keyTable" id="meas" class="form-control" placeholder="Your"></select>
+					</div>
+					<div class="form-group">
+						<label for="value">Value:</label>
+						<input type="text" class="form-control" id="value" placeholder="Enter value" ng-model="val"></input>
+					</div>
+					<button type="submit" class="btn btn-primary">Add</button>
+					<br>
+				</form>
+			</div>
+		</script>
+
+		<script type="text/ng-template" id="/views.html">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="page-header">
+					<h2>{{MeaName}}</h2>
+				</div>
+				<br>
+				<div>
+					<line-chart data="dataObj"></line-chart>
+				</div>
+				<br><br><br><br><br>
+				<div>
+					<bar-chart data="dataObj"></bar-chart>
+				</div>
+				<br><br><br><br><br>
+				<div>
+					<donut-chart data="graphData"></donut-chart>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/ng-template" id="/views2.html">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="page-header">
+					<h2>{{MeaName}}</h2>
+				</div>
+				<br>
+				<div>
+					<line-chart data="dataObj"></line-chart>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/ng-template" id="/views3.html">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="page-header">
+					<h2>{{MeaName}}</h2>
+				</div>
+				<br>
+				<div>
+					<bar-chart data="dataObj"></bar-chart>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/ng-template" id="/views4.html">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="page-header">
+					<h2>{{MeaName}}</h2>
+				</div>
+				<br>
+				<div>
+					<donut-chart data="graphData"></donut-chart>
+				</div>
+			</div>
+		</script>
+	</body>
+</html>
